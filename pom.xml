@@ -976,17 +976,36 @@ limitations under the License.
     </plugins>
   </reporting>
 
-  <repositories>
-    <repository>
-      <id>central</id>
-      <name>Central Repository</name>
-      <url>http://repo.maven.apache.org/maven2</url>
-      <layout>default</layout>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+  <!--<reporting>-->
+    <!--<plugins>-->
+      <!--<plugin>-->
+        <!--<groupId>org.apache.maven.plugins</groupId>-->
+        <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+        <!--<version>${maven-javadoc-plugin.version}</version>-->
+        <!--<configuration>-->
+          <!--<links>-->
+            <!--<link>https://docs.oracle.com/javase/8/docs/api/</link>-->
+          <!--</links>-->
+          <!--<excludePackageNames>org.apache.calcite.benchmarks.generated,org.apache.calcite.sql.parser.ddl,org.apache.calcite.sql.parser.impl,org.apache.calcite.sql.parser.parserextensiontesting,org.apache.calcite.piglet.parser,org.openjdk.jmh</excludePackageNames>-->
+          <!--<notimestamp>true</notimestamp>-->
+          <!--<windowtitle>Apache Calcite API</windowtitle>-->
+        <!--</configuration>-->
+      <!--</plugin>-->
+    <!--</plugins>-->
+  <!--</reporting>-->
+
+
+  <!--<repositories>-->
+    <!--<repository>-->
+      <!--<id>central</id>-->
+      <!--<name>Central Repository</name>-->
+      <!--<url>http://repo.maven.apache.org/maven2</url>-->
+      <!--<layout>default</layout>-->
+      <!--<snapshots>-->
+        <!--<enabled>false</enabled>-->
+      <!--</snapshots>-->
+    <!--</repository>-->
+  <!--</repositories>-->
 
   <profiles>
     <profile>

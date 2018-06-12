@@ -25,7 +25,7 @@ limitations under the License.
 
   <artifactId>calcite-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.17.0</version>
+  <version>1.17.0-tdbank-SNAPSHOT</version>
   <name>Calcite Core</name>
   <description>Core Calcite APIs and engine.</description>
 
@@ -44,6 +44,7 @@ limitations under the License.
     <dependency>
       <groupId>org.apache.calcite</groupId>
       <artifactId>calcite-linq4j</artifactId>
+      <version>1.17.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.calcite.avatica</groupId>

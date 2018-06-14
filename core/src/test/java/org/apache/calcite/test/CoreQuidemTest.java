@@ -41,9 +41,9 @@ public class CoreQuidemTest extends QuidemTest {
    *   <code>java CoreQuidemTest sql/dummy.iq</code>
    * </blockquote> */
   public static void main(String[] args) throws Exception {
-    for (String arg : args) {
+    /*for (String arg : args) {
       new CoreQuidemTest(arg).test();
-    }
+    }*/
   }
 
   /** For {@link Parameterized} runner. */

@@ -1,0 +1,4 @@
+NAME:string,NUMBER:int,ORDERTIME:date
+"anna",1500,"2010-08-09"
+"suzy",2600,"2015-04-07"
+"wini",5000,"2016-5-5"

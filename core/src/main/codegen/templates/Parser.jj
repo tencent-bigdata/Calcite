@@ -1820,11 +1820,29 @@ SqlNode TableRef2(boolean lateral) :
     int repeatableSeed = 0;
     SqlNodeList columnAliasList = null;
     SqlUnnestOperator unnestOp = SqlStdOperatorTable.UNNEST;
+    SqlNode systemTime;
+    SqlLiteral subclause;
 }
 {
     (
         LOOKAHEAD(2)
         tableRef = CompoundIdentifier()
+        [
+                    <FOR> <SYSTEM_TIME> <AS> <OF>
+                    (
+                        systemTime = DateTimeLiteral()
+                    |
+                        systemTime = CompoundIdentifier()
+                    )
+                    {
+                        subclause = ForSystemTimeSubClause.AS_OF.symbol(getPos());
+                        tableRef = new SqlForSystemTime(subclause.getParserPosition(),
+                                   tableRef,
+                                   subclause,
+                                   systemTime,
+                                   null);
+                    }
+                ]
         [
             [ <EXTEND> ]
             extendList = ExtendList() {

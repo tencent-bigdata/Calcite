@@ -41,6 +41,7 @@ import org.apache.calcite.runtime.Resources;
 import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.impl.ModifiableViewTable;
+import org.apache.calcite.sql.ForSystemTimeSubClause;
 import org.apache.calcite.sql.JoinConditionType;
 import org.apache.calcite.sql.JoinType;
 import org.apache.calcite.sql.SqlAccessEnum;
@@ -52,6 +53,7 @@ import org.apache.calcite.sql.SqlDataTypeSpec;
 import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplain;
+import org.apache.calcite.sql.SqlForSystemTime;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlFunctionCategory;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -1036,12 +1038,22 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       final SqlCall call = (SqlCall) node;
       switch (call.getOperator().getKind()) {
       case EXTEND:
+        final SqlNode firstOperand = call.operand(0);
+        if (firstOperand instanceof SqlForSystemTime) {
+          final SqlNode table = ((SqlForSystemTime) firstOperand).getTable();
+          return getNamespace(table, scope);
+        }
         final SqlIdentifier id = (SqlIdentifier) call.getOperandList().get(0);
         final DelegatingScope idScope = (DelegatingScope) scope;
         return getNamespace(id, idScope);
+
+      case FOR_SYSTEM_TIME:
+        final SqlNode table = ((SqlCall) node).getOperandList().get(0);
+        return getNamespace(table, scope);
       case AS:
         final SqlNode nested = call.getOperandList().get(0);
         switch (nested.getKind()) {
+        case FOR_SYSTEM_TIME:
         case EXTEND:
           return getNamespace(nested, scope);
         }
@@ -1067,14 +1079,19 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
   public SqlValidatorNamespace getNamespace(SqlNode node) {
     switch (node.getKind()) {
     case AS:
-
+      final SqlCall call = (SqlCall) node;
+      final SqlNode firstOperand = call.operand(0);
+      if (firstOperand instanceof SqlForSystemTime) {
+        return getNamespace(firstOperand);
+      }
       // AS has a namespace if it has a column list 'AS t (c1, c2, ...)'
       final SqlValidatorNamespace ns = namespaces.get(node);
       if (ns != null) {
         return ns;
       }
-      // fall through
+        // fall through
     case OVER:
+    case FOR_SYSTEM_TIME:
     case COLLECTION_TABLE:
     case ORDER_BY:
     case TABLESAMPLE:
@@ -1129,6 +1146,9 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
         } else if (kind == SqlKind.AS && (i == 0)) {
           // for an aliased expression, it is under FROM if
           // the AS expression is under FROM
+          childUnderFrom = underFrom;
+        } else if (kind == SqlKind.FOR_SYSTEM_TIME) {
+          //for FOR SYSTEM TIME clause's operand
           childUnderFrom = underFrom;
         } else {
           childUnderFrom = false;
@@ -2029,6 +2049,15 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
     SqlNode newOperand;
 
     switch (kind) {
+    case FOR_SYSTEM_TIME:
+      SqlForSystemTime forSystemTime = (SqlForSystemTime) node;
+      final SqlNode table = forSystemTime.getTable();
+      final SqlNode newTable = registerFrom(parentScope, usingScope, register,
+                table, enclosingNode, alias, extendList, forceNullable, lateral);
+      if (newTable != table) {
+        forSystemTime.setTable(newTable);
+      }
+      return forSystemTime;
     case AS:
       call = (SqlCall) node;
       if (alias == null) {
@@ -3010,6 +3039,38 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
       SqlValidatorScope scope) {
     Objects.requireNonNull(targetRowType);
     switch (node.getKind()) {
+    case FOR_SYSTEM_TIME:
+      final SqlForSystemTime forSystemTime = (SqlForSystemTime) node;
+      final SqlNode table = forSystemTime.getTable();
+      validateFrom(table, targetRowType, scope);
+      final ForSystemTimeSubClause subClause = forSystemTime.getSubClause();
+      switch (subClause) {
+      case AS_OF:
+        final SqlNode startTime = forSystemTime.getStartDateTime();
+        final SqlNode endTime = forSystemTime.getEndDateTime();
+        Preconditions.checkArgument(startTime != null);
+        Preconditions.checkArgument(endTime == null);
+        switch (startTime.getKind()) {
+        case IDENTIFIER:
+          scopes.put(forSystemTime, scope);
+          validateIdentifier((SqlIdentifier) startTime, scope);
+          break;
+        case LITERAL:
+          validateLiteral((SqlLiteral) startTime);
+          break;
+        default:
+          throw Util.unexpected(startTime.getKind());
+        }
+        break;
+      case FROM_TO:
+      case CONTAINED_IN:
+      case BETWEEN_AND:
+        // TODO
+        break;
+      default:
+        throw Util.unexpected(subClause);
+      }
+      break;
     case AS:
       validateFrom(
           ((SqlCall) node).operand(0),

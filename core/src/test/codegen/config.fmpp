@@ -24,6 +24,7 @@ data: {
         "org.apache.calcite.sql.SqlCreate",
         "org.apache.calcite.sql.parser.parserextensiontesting.SqlCreateTable",
         "org.apache.calcite.sql.parser.parserextensiontesting.SqlUploadJarNode"
+        "org.apache.calcite.sql.SqlForSystemTime", "org.apache.calcite.sql.ForSystemTimeSubClause"
       ]
 
       # List of keywords.

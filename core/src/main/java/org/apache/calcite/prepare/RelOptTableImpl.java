@@ -318,6 +318,11 @@ public class RelOptTableImpl extends Prepare.AbstractPreparingTable {
     return rowType;
   }
 
+  // (for system time as of ) in order to get table
+  public Table getTable() {
+    return table;
+  }
+
   public boolean supportsModality(SqlModality modality) {
     switch (modality) {
     case STREAM:

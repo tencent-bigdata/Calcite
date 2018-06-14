@@ -41,6 +41,7 @@ data: {
     # List of additional classes and packages to import.
     # Example. "org.apache.calcite.sql.*", "java.util.List".
     imports: [
+    "org.apache.calcite.sql.SqlForSystemTime", "org.apache.calcite.sql.ForSystemTimeSubClause"
     ]
 
     # List of new keywords. Example: "DATABASES", "TABLES". If the keyword is not a reserved

@@ -30,12 +30,13 @@ import java.util.List;
  * @see JsonRoot Description of schema elements
  */
 @JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = JsonCustomTable.class)
+        use = JsonTypeInfo.Id.NAME,
+        property = "type",
+        defaultImpl = JsonCustomTable.class)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = JsonCustomTable.class, name = "custom"),
-    @JsonSubTypes.Type(value = JsonView.class, name = "view") })
+        @JsonSubTypes.Type(value = JsonCustomTable.class, name = "custom"),
+        @JsonSubTypes.Type(value = JsonView.class, name = "view"),
+        @JsonSubTypes.Type(value = JsonTemporalTable.class, name = "temporal")})
 public abstract class JsonTable {
   /** Name of this table.
    *

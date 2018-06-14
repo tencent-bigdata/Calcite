@@ -34,6 +34,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CsvScannableTable extends CsvTable
     implements ScannableTable {
+  private String sysStartTime;
+  private String sysEndTime;
+
+  public CsvScannableTable(Source source, RelProtoDataType protoRowType,
+                            String startTime, String endTime) {
+    super(source, protoRowType);
+    this.sysStartTime = startTime;
+    this.sysEndTime = endTime;
+  }
   /** Creates a CsvScannableTable. */
   CsvScannableTable(Source source, RelProtoDataType protoRowType) {
     super(source, protoRowType);
@@ -52,6 +61,12 @@ public class CsvScannableTable extends CsvTable
             new CsvEnumerator.ArrayRowConverter(fieldTypes, fields));
       }
     };
+  }
+  public String getSysStartTime() {
+    return sysStartTime;
+  }
+  public String getSysEndTime() {
+    return sysEndTime;
   }
 }
 

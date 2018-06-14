@@ -25,6 +25,7 @@ data: {
         "org.apache.calcite.sql.SqlCreate"
         "org.apache.calcite.sql.SqlDrop"
         "org.apache.calcite.sql.ddl.SqlDdlNodes"
+        "org.apache.calcite.sql.SqlForSystemTime", "org.apache.calcite.sql.ForSystemTimeSubClause"
       ]
 
       # List of keywords.

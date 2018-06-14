@@ -89,6 +89,7 @@ import org.apache.calcite.schema.ColumnStrategy;
 import org.apache.calcite.schema.ModifiableTable;
 import org.apache.calcite.schema.ModifiableView;
 import org.apache.calcite.schema.Table;
+import org.apache.calcite.schema.TemporalTable;
 import org.apache.calcite.schema.TranslatableTable;
 import org.apache.calcite.schema.Wrapper;
 import org.apache.calcite.sql.JoinConditionType;
@@ -103,6 +104,7 @@ import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplainFormat;
 import org.apache.calcite.sql.SqlExplainLevel;
+import org.apache.calcite.sql.SqlForSystemTime;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlIdentifier;
 import org.apache.calcite.sql.SqlInsert;
@@ -1941,6 +1943,9 @@ public class SqlToRelConverter {
     final SqlCall call;
     final SqlNode[] operands;
     switch (from.getKind()) {
+    case FOR_SYSTEM_TIME:
+      convertForSystemTime(bb,  (SqlForSystemTime) from);
+      return;
     case MATCH_RECOGNIZE:
       convertMatchRecognize(bb, (SqlCall) from);
       return;
@@ -2016,7 +2021,7 @@ public class SqlToRelConverter {
               ((DelegatingScope) bb.scope).getParent());
       final Blackboard leftBlackboard =
           createBlackboard(leftScope, null, false);
-      final SqlValidatorScope rightScope =
+      SqlValidatorScope rightScope =
           Util.first(validator.getJoinScope(right),
               ((DelegatingScope) bb.scope).getParent());
       final Blackboard rightBlackboard =
@@ -2104,6 +2109,92 @@ public class SqlToRelConverter {
 
     default:
       throw new AssertionError("not a join operator " + from);
+    }
+  }
+
+  protected void convertForSystemTime(Blackboard bb, SqlForSystemTime forSystemTime) {
+    final SqlNode table = forSystemTime.getTable();
+    convertFrom(bb, table);
+    RelNode tableRel = bb.root;
+    RexNode asOfCondition;
+    String startColumnName = null;
+    String endColumnName = null;
+    final RelDataType rowType;
+    final RelDataTypeField startField;
+    final RelDataTypeField endField;
+
+    final SqlNameMatcher nameMatcher = catalogReader.nameMatcher();
+    final SqlValidatorNamespace leftTableNamespace = validator.getNamespace(table);
+    final SqlValidatorTable table2 = leftTableNamespace.getTable();
+    String tableName = leftTableNamespace.getNode().toString();
+
+    switch (forSystemTime.getSubClause()) {
+    case AS_OF:
+      final List<RexNode> list = new ArrayList<>();
+      final List<RexNode> endlist = new ArrayList<>();
+      List<RexNode> startOperands = new ArrayList<>();
+      List<RexNode> endOperands = new ArrayList<>();
+      RexNode endCondition;
+      RexNode time;
+      final SqlNode startTime = forSystemTime.getStartDateTime();
+      switch (startTime.getKind()) {
+      case IDENTIFIER:
+        Blackboard startTimeBB = createBlackboard(validator.getOverScope(forSystemTime),
+                    null, false);
+        time = convertIdentifier(startTimeBB, (SqlIdentifier) startTime);
+        break;
+      case LITERAL:
+        time = bb.convertLiteral((SqlLiteral) startTime);
+        break;
+      default:
+        throw Util.unexpected(startTime.getKind());
+      }
+      if (table2 != null) {
+        if (table2 instanceof RelOptTableImpl) {
+          Table sourceTable = ((RelOptTableImpl) table2).getTable();
+          if (sourceTable instanceof TemporalTable) {
+            startColumnName = ((TemporalTable) sourceTable).getSysStartTime();
+            endColumnName = ((TemporalTable) sourceTable).getSysEndTime();
+            if (startColumnName == null || endColumnName == null) {
+              throw new AssertionError(
+                        "Can not use \"For System_time\" clause in this table: "
+                                + tableName
+                                + "which is not a Temporal table");
+            }
+            rowType = leftTableNamespace.getRowType();
+            startField = nameMatcher.field(rowType, startColumnName);
+            endField = nameMatcher.field(rowType, endColumnName);
+            startOperands.add(
+                      rexBuilder.makeInputRef(startField.getType(),
+                              startField.getIndex()));
+            startOperands.add(time);
+            list.add(
+                      rexBuilder.makeCall(SqlStdOperatorTable.LESS_THAN_OR_EQUAL,
+                              startOperands));
+            endOperands.add(
+                      rexBuilder.makeInputRef(endField.getType(),
+                              endField.getIndex()));
+            endOperands.add(time);
+            endlist.add(rexBuilder.makeCall(SqlStdOperatorTable.GREATER_THAN, endOperands));
+            RexInputRef endInputRef = rexBuilder.makeInputRef(endField.getType(),
+                                      endField.getIndex());
+            endlist.add(rexBuilder.makeCall(SqlStdOperatorTable.IS_NULL, endInputRef));
+            endCondition = RexUtil.composeDisjunction(rexBuilder, endlist, false);
+            list.add(endCondition);
+            asOfCondition = RexUtil.composeConjunction(rexBuilder, list, false);
+            bb.setRoot(LogicalFilter.create(tableRel, asOfCondition), false);
+          }
+        }
+      } else {
+        throw new AssertionError("Can not get Temporal table");
+      }
+      break;
+    case FROM_TO:
+    case BETWEEN_AND:
+    case CONTAINED_IN:
+      break;
+    default:
+      throw Util.unexpected(forSystemTime.getSubClause());
     }
   }
 

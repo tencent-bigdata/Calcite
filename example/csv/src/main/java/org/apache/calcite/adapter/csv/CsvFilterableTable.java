@@ -41,6 +41,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CsvFilterableTable extends CsvTable
     implements FilterableTable {
+  private String sysStartTime;
+  private String sysEndTime;
+
+  public CsvFilterableTable(Source source, RelProtoDataType protoRowType,
+                            String startTime, String endTime) {
+    super(source, protoRowType);
+    this.sysStartTime = startTime;
+    this.sysEndTime = endTime;
+  }
   /** Creates a CsvFilterableTable. */
   public CsvFilterableTable(Source source, RelProtoDataType protoRowType) {
     super(source, protoRowType);
@@ -86,6 +95,12 @@ public class CsvFilterableTable extends CsvTable
       }
     }
     return false;
+  }
+  public String getSysStartTime() {
+    return sysStartTime;
+  }
+  public String getSysEndTime() {
+    return sysEndTime;
   }
 }
 

@@ -204,6 +204,11 @@ public interface SqlWriter {
     FROM_LIST,
 
     /**
+     * Temporal Table. FOR SYSTEM TIME clause.
+     */
+    FOR_SYSTEM_TIME,
+
+    /**
      * Pair-wise join.
      */
     JOIN(false),

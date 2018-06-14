@@ -1,0 +1,5 @@
+NO:int,NAME:string,STARTTIME:date,ENDTIME:date
+10,"mike","2007-11-6","2017-1-1"
+20,"anna","2002-1-2",
+30,"suzy","2015-1-1","2016-1-1"
+40,"wini","2017-1-1","2018-5-5"

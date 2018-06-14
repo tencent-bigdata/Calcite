@@ -32,6 +32,7 @@ import org.apache.calcite.schema.Table;
 import org.apache.calcite.schema.TableFactory;
 import org.apache.calcite.schema.TableFunction;
 import org.apache.calcite.schema.TableMacro;
+import org.apache.calcite.schema.TemporalTableFactory;
 import org.apache.calcite.schema.impl.AbstractSchema;
 import org.apache.calcite.schema.impl.AggregateFunctionImpl;
 import org.apache.calcite.schema.impl.MaterializedViewTable;
@@ -431,6 +432,26 @@ public class ModelHandler {
       schema.add(jsonTable.name, table);
     } catch (Exception e) {
       throw new RuntimeException("Error instantiating " + jsonTable, e);
+    }
+  }
+
+  public void visit(JsonTemporalTable jsonTemporalTable) {
+    try {
+      checkRequiredAttributes(jsonTemporalTable, "name", "factory");
+      final SchemaPlus schema = currentMutableSchema("table");
+      final TemporalTableFactory tableFactory =
+              AvaticaUtils.instantiatePlugin(TemporalTableFactory.class,
+                      jsonTemporalTable.factory);
+      final Table table =
+              tableFactory.create(schema, jsonTemporalTable.name,
+                      operandMap(null, jsonTemporalTable.operand), null,
+                      jsonTemporalTable.temporal);
+      for (JsonColumn column : jsonTemporalTable.columns) {
+        column.accept(this);
+      }
+      schema.add(jsonTemporalTable.name, table);
+    } catch (Exception e) {
+      throw new RuntimeException("Error instantiating " + jsonTemporalTable, e);
     }
   }
 

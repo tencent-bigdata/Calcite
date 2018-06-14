@@ -40,6 +40,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class CsvTranslatableTable extends CsvTable
     implements QueryableTable, TranslatableTable {
+  private String sysStartTime;
+  private String sysEndTime;
+
+  public CsvTranslatableTable(Source source, RelProtoDataType protoRowType,
+                            String startTime, String endTime) {
+    super(source, protoRowType);
+    this.sysStartTime = startTime;
+    this.sysEndTime = endTime;
+  }
   /** Creates a CsvTable. */
   CsvTranslatableTable(Source source, RelProtoDataType protoRowType) {
     super(source, protoRowType);
@@ -83,6 +92,12 @@ public class CsvTranslatableTable extends CsvTable
     final int fieldCount = relOptTable.getRowType().getFieldCount();
     final int[] fields = CsvEnumerator.identityList(fieldCount);
     return new CsvTableScan(context.getCluster(), relOptTable, this, fields);
+  }
+  public String getSysStartTime() {
+    return sysStartTime;
+  }
+  public String getSysEndTime() {
+    return sysEndTime;
   }
 }
 

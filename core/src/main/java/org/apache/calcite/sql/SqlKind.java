@@ -101,6 +101,11 @@ public enum SqlKind {
   JOIN,
 
   /**
+   * Temporal Table. eg.FOR SYSTEM TIME AS OF DATE 'datetime'.
+   */
+  FOR_SYSTEM_TIME,
+
+  /**
    * Identifier
    */
   IDENTIFIER,

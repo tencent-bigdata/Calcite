@@ -43,11 +43,13 @@ limitations under the License.
     <dependency>
       <groupId>org.apache.calcite</groupId>
       <artifactId>calcite-core</artifactId>
+      <version>1.17.0</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.apache.calcite</groupId>
       <artifactId>calcite-core</artifactId>
+      <version>1.17.0</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

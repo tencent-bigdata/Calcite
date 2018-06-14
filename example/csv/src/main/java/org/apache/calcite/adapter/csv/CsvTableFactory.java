@@ -22,6 +22,7 @@ import org.apache.calcite.rel.type.RelDataTypeImpl;
 import org.apache.calcite.rel.type.RelProtoDataType;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.TableFactory;
+import org.apache.calcite.schema.TemporalTableFactory;
 import org.apache.calcite.util.Source;
 import org.apache.calcite.util.Sources;
 
@@ -35,7 +36,7 @@ import java.util.Map;
  * schema that is not based upon {@link CsvSchema}.
  */
 @SuppressWarnings("UnusedDeclaration")
-public class CsvTableFactory implements TableFactory<CsvTable> {
+public class CsvTableFactory implements TemporalTableFactory<CsvTable>, TableFactory<CsvTable> {
   // public constructor, per factory contract
   public CsvTableFactory() {
   }
@@ -49,6 +50,20 @@ public class CsvTableFactory implements TableFactory<CsvTable> {
     final RelProtoDataType protoRowType =
         rowType != null ? RelDataTypeImpl.proto(rowType) : null;
     return new CsvScannableTable(source, protoRowType);
+  }
+
+  public CsvTable create(SchemaPlus schema, String name,
+                         Map<String, Object> operand, RelDataType rowType,
+                         Map<String, String> temporal) {
+    String fileName = (String) operand.get("file");
+    final File base =
+            (File) operand.get(ModelHandler.ExtraOperand.BASE_DIRECTORY.camelName);
+    final Source source = Sources.file(base, fileName);
+    final RelProtoDataType protoRowType =
+            rowType != null ? RelDataTypeImpl.proto(rowType) : null;
+    final String startTimeName = temporal.get("start");
+    final String endTimeName = temporal.get("end");
+    return new CsvFilterableTable(source, protoRowType, startTimeName, endTimeName);
   }
 }
 

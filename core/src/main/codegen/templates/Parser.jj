@@ -2914,6 +2914,8 @@ SqlNode QueryOrExpr(ExprContext exprContext) :
     SqlParserPos pos;
     SqlParserPos withPos;
     List<Object> list;
+    SqlIdentifier udfName;
+    SqlOperator newOp;
 }
 {
     [
@@ -2937,7 +2939,17 @@ SqlNode QueryOrExpr(ExprContext exprContext) :
             checkQueryExpression(exprContext);
 
         }
-        e = LeafQueryOrExpr(ExprContext.ACCEPT_QUERY) {
+        e = LeafQueryOrExpr(ExprContext.ACCEPT_QUERY)
+        [
+            <EXTRACT_WATERMARK>
+            udfName = CompoundIdentifier()
+            {
+                newOp = new SqlExtractWatermarkOP(op, udfName);
+                op = newOp;
+                pos = getPos();
+            }
+        ]
+        {
             list.add(new SqlParserUtil.ToTreeListItem(op, pos));
             list.add(e);
         }

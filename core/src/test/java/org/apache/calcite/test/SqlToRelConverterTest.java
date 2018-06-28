@@ -26,6 +26,7 @@ import org.apache.calcite.rel.RelRoot;
 import org.apache.calcite.rel.RelVisitor;
 import org.apache.calcite.rel.core.CorrelationId;
 import org.apache.calcite.rel.externalize.RelXmlWriter;
+import org.apache.calcite.rel.logical.LogicalUnion;
 import org.apache.calcite.sql.SqlExplainLevel;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
@@ -1528,6 +1529,24 @@ public class SqlToRelConverterTest extends SqlToRelTestBase {
         "select empno from emp union select deptno from dept";
     sql(sql).ok();
   }
+  @Test public void testUnionExtractwatermark() {
+    final String sql =
+            "(select empno from emp union all select deptno from dept "
+                    +
+                    "extract_watermark udf.test.name) union all select empno"
+                    +
+                    " from emp extract_watermark two.test union select deptno from"
+                    +
+                    " dept extract_watermark three.test";
+    String sql2 = getDiffRepos().expand("sql", sql);
+    RelRoot rel = sql(sql).testunionrel(sql2);
+    if (rel.rel instanceof LogicalUnion) {
+      LogicalUnion union = (LogicalUnion) rel.rel.getInput(0);
+      System.out.println(((LogicalUnion) rel.rel).getUdfName());
+      System.out.println(union.getUdfName());
+      System.out.println(((LogicalUnion) union.getInput(0)).getUdfName());
+    }
+  }
 
   @Test public void testUnionValues() {
     // union with values
@@ -2893,6 +2912,12 @@ public class SqlToRelConverterTest extends SqlToRelTestBase {
           .withConformance(conformance)
           .withConfig(config)
           .assertConvertsTo(sql, plan, trim);
+    }
+    public RelRoot testunionrel(String sql) {
+      return tester.withExpand(expand)
+              .withDecorrelation(decorrelate)
+              .withConformance(conformance)
+              .withConfig(config).convertSqlToRel(sql);
     }
 
     public Sql withConfig(SqlToRelConverter.Config config) {

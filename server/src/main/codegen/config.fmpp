@@ -26,6 +26,7 @@ data: {
         "org.apache.calcite.sql.SqlDrop"
         "org.apache.calcite.sql.ddl.SqlDdlNodes"
         "org.apache.calcite.sql.SqlForSystemTime", "org.apache.calcite.sql.ForSystemTimeSubClause"
+        "org.apache.calcite.sql.SqlExtractWatermarkOP"
       ]
 
       # List of keywords.
@@ -34,6 +35,7 @@ data: {
         "MATERIALIZED"
         "STORED"
         "VIRTUAL"
+        "EXTRACT_WATERMARK"
       ]
 
       # List of keywords from "keywords" section that are not reserved.

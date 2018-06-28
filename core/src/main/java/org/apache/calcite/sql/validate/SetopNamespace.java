@@ -18,10 +18,13 @@ package org.apache.calcite.sql.validate;
 
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.sql.SqlCall;
+import org.apache.calcite.sql.SqlExtractWatermarkOP;
 import org.apache.calcite.sql.SqlKind;
 import org.apache.calcite.sql.SqlNode;
 
 import static org.apache.calcite.util.Static.RESOURCE;
+
+import java.util.Objects;
 
 /**
  * Namespace based upon a set operation (UNION, INTERSECT, EXCEPT).
@@ -100,6 +103,10 @@ public class SetopNamespace extends AbstractNamespace {
               RESOURCE.needQueryOp(operand.toString()));
         }
         validator.validateQuery(operand, scope, targetRowType);
+      }
+      if (call.getOperator() instanceof SqlExtractWatermarkOP) {
+        Objects.requireNonNull(((SqlExtractWatermarkOP) call.getOperator())
+                .udfNameInSqlIdentifier());
       }
       return call.getOperator().deriveType(
           validator,

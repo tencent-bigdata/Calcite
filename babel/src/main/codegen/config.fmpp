@@ -23,11 +23,13 @@ data: {
       imports: [
 
       "org.apache.calcite.sql.SqlForSystemTime", "org.apache.calcite.sql.ForSystemTimeSubClause"
+      "org.apache.calcite.sql.SqlExtractWatermarkOP"
       ]
 
       # List of keywords.
       keywords: [
         "SEMI"
+        "EXTRACT_WATERMARK"
       ]
 
       # List of keywords from "keywords" section that are not reserved.

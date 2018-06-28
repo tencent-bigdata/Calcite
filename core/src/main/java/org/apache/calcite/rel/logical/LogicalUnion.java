@@ -31,6 +31,8 @@ import java.util.List;
  * not targeted at any particular engine or calling convention.
  */
 public final class LogicalUnion extends Union {
+
+  public List<String> udfName;
   //~ Constructors -----------------------------------------------------------
 
   /**
@@ -43,6 +45,17 @@ public final class LogicalUnion extends Union {
       List<RelNode> inputs,
       boolean all) {
     super(cluster, traitSet, inputs, all);
+  }
+  /**
+   * Creates a LogicalUnion with EXTRACT_WATERMARK.
+   */
+  public LogicalUnion(RelOptCluster cluster,
+                      RelTraitSet traitSet,
+                      List<RelNode> inputs,
+                      boolean all,
+                      List<String> udfName) {
+    super(cluster, traitSet, inputs, all);
+    this.udfName = udfName;
   }
 
   @Deprecated // to be removed before 2.0
@@ -64,17 +77,32 @@ public final class LogicalUnion extends Union {
     final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
     return new LogicalUnion(cluster, traitSet, inputs, all);
   }
+  /** Creates a LogicalUnion with EXTRACT_WATERMARK. */
+  public static LogicalUnion createLogicalUnionWithWatermark(List<RelNode> inputs, boolean all,
+                                                             List<String> name) {
+    final RelOptCluster cluster = inputs.get(0).getCluster();
+    final RelTraitSet traitSet = cluster.traitSetOf(Convention.NONE);
+    return new LogicalUnion(cluster, traitSet, inputs, all, name);
+  }
 
   //~ Methods ----------------------------------------------------------------
 
   public LogicalUnion copy(
       RelTraitSet traitSet, List<RelNode> inputs, boolean all) {
     assert traitSet.containsIfApplicable(Convention.NONE);
+    if (udfName != null) {
+      return new LogicalUnion(getCluster(), traitSet, inputs, all, udfName);
+    }
     return new LogicalUnion(getCluster(), traitSet, inputs, all);
   }
 
   @Override public RelNode accept(RelShuttle shuttle) {
     return shuttle.visit(this);
+  }
+
+  /** To get the udf name of EXTRACT_WATERMARK. */
+  public List<String> getUdfName() {
+    return udfName;
   }
 }
 

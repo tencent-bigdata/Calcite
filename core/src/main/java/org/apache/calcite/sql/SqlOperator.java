@@ -502,10 +502,15 @@ public abstract class SqlOperator {
         call, args, false);
 
     final SqlOperator sqlOperator =
-        SqlUtil.lookupRoutine(validator.getOperatorTable(), getNameAsId(),
-            argTypes, null, null, getSyntax(), getKind());
+            SqlUtil.lookupRoutine(validator.getOperatorTable(), getNameAsId(),
+                    argTypes, null, null, getSyntax(), getKind());
 
-    ((SqlBasicCall) call).setOperator(sqlOperator);
+    if (call.getOperator() instanceof SqlExtractWatermarkOP) {
+      ((SqlExtractWatermarkOP) call.getOperator()).setSqlSetOperator(sqlOperator);
+    } else {
+      ((SqlBasicCall) call).setOperator(sqlOperator);
+    }
+
     RelDataType type = call.getOperator().validateOperands(validator, scope, call);
 
     // Validate and determine coercibility and resulting collation

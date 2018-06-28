@@ -104,6 +104,7 @@ import org.apache.calcite.sql.SqlDelete;
 import org.apache.calcite.sql.SqlDynamicParam;
 import org.apache.calcite.sql.SqlExplainFormat;
 import org.apache.calcite.sql.SqlExplainLevel;
+import org.apache.calcite.sql.SqlExtractWatermarkOP;
 import org.apache.calcite.sql.SqlForSystemTime;
 import org.apache.calcite.sql.SqlFunction;
 import org.apache.calcite.sql.SqlIdentifier;
@@ -3175,6 +3176,13 @@ public class SqlToRelConverter {
         convertQueryRecursive(call.operand(1), false, null).project();
     switch (call.getKind()) {
     case UNION:
+      final SqlOperator setOperator = call.getOperator();
+      if (setOperator instanceof SqlExtractWatermarkOP) {
+        final List<String> udfName =
+                ((SqlExtractWatermarkOP) call.getOperator()).udfNameInString();
+        return LogicalUnion.createLogicalUnionWithWatermark(ImmutableList.of(left, right),
+                all(call), udfName);
+      }
       return LogicalUnion.create(ImmutableList.of(left, right), all(call));
 
     case INTERSECT:

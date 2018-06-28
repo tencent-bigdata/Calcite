@@ -941,7 +941,6 @@ public class SqlValidatorImpl implements SqlValidatorWithHints {
             node.getParserPosition());
       }
     }
-
     validateNamespace(ns, targetRowType);
     switch (node.getKind()) {
     case EXTEND:

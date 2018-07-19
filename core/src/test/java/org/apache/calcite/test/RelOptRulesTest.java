@@ -3076,6 +3076,28 @@ public class RelOptRulesTest extends RelOptTestBase {
         + "where r < 2";
     checkPlanUnchanged(new HepPlanner(program), sql);
   }
+  /*@Test public void testTopN() throws Exception {
+    HepProgram program = new HepProgramBuilder()
+            //.addRuleInstance(ProjectRemoveRule.INSTANCE)
+            .addRuleInstance(ProjectToWindowRule.PROJECT)
+            .addRuleInstance(ProjectToCalcRule.INSTANCE)
+            .addRuleInstance(FilterToCalcRule.INSTANCE)
+            .addRuleInstance(CalcMergeRule.INSTANCE).build();
+           //.addRuleInstance(CalcWindowMergeRule.INSTANCE).build();
+    final String sql = "select *\n"
+            + "from (\n"
+            + "  select *,\n"
+            + "  row_number() over(partition by  deptno order by sal DESC) as r "
+            + "  from emp)\n"
+            + "where r < 2";
+    final String sql1 = "select *\n"
+            + "from (\n"
+            + "  select sal,\n"
+            + "  row_number() over(partition by  deptno order by sal DESC) as r "
+            + "  from emp where sal>5000)\n"
+            + "where r<2 and sal<1000";
+    checkPlanning(program, sql1);
+  }*/
 
   /** Test case for
    * <a href="https://issues.apache.org/jira/browse/CALCITE-841">[CALCITE-841]

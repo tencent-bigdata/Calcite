@@ -46,6 +46,7 @@ import org.apache.calcite.rel.core.Union;
 import org.apache.calcite.rel.core.Values;
 import org.apache.calcite.rel.logical.LogicalFilter;
 import org.apache.calcite.rel.logical.LogicalProject;
+import org.apache.calcite.rel.logical.LogicalCalc;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
@@ -58,6 +59,7 @@ import org.apache.calcite.rex.RexExecutor;
 import org.apache.calcite.rex.RexInputRef;
 import org.apache.calcite.rex.RexLiteral;
 import org.apache.calcite.rex.RexNode;
+import org.apache.calcite.rex.RexProgram;
 import org.apache.calcite.rex.RexShuttle;
 import org.apache.calcite.rex.RexSimplify;
 import org.apache.calcite.rex.RexUtil;
@@ -941,7 +943,16 @@ public class RelBuilder {
     return this;
   }
 
-  /** Creates a {@link Project} of the given list
+  public RelBuilder calcForTopN(RexProgram program, RexBuilder rexBuilder) {
+    final Frame frame = stack.pop();
+    final RexProgram newProgram = RexProgram.create(frame.rel.getRowType(),
+            program.getProjectList(), null, program.getOutputRowType(), rexBuilder);
+    final RelNode calc = LogicalCalc.create(frame.rel, newProgram);
+    stack.push(new Frame(calc));
+    return this;
+  }
+
+  /** Creates a {@link org.apache.calcite.rel.core.Project} of the given list
    * of expressions.
    *
    * <p>Infers names as would {@link #project(Iterable, Iterable)} if all

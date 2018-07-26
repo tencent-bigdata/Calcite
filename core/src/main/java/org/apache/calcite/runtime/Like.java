@@ -281,9 +281,9 @@ public class Like {
           insideCharacterEnumeration = false;
           javaPattern.append(']');
           break;
-        case '\\':
+        /*case '\\':
           javaPattern.append("\\\\");
-          break;
+          break;*/
         case '$':
 
           // $ is special character in java regex, but regular in

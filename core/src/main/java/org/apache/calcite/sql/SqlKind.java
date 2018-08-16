@@ -922,6 +922,17 @@ public enum SqlKind {
    * the {@link #TUMBLE} group function. */
   TUMBLE_END,
 
+  /** The {@code ENHANCED} group function. */
+  ENHANCED,
+
+  /** The {@code ENHANCED_START} auxiliary function of
+   * the {@link #ENHANCED} group function. */
+  ENHANCED_START,
+
+  /** The {@code ENHANCED_END} auxiliary function of
+   * the {@link #ENHANCED} group function. */
+  ENHANCED_END,
+
   /** The {@code HOP} group function. */
   HOP,
 

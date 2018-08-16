@@ -9895,7 +9895,11 @@ public class SqlValidatorTest extends SqlValidatorTestCase {
         + "  from \"DYNAMIC\".NATION, \"DYNAMIC\".CUSTOMER)";
     sql(sql).type("RecordType(ANY NEWID) NOT NULL");
   }
-
+  @Test public void testStreamEnhanced() {
+    sql("select stream enhanced_end(rowtime, interval '2' hour) as rowtime\n"
+            + "from orders\n"
+            + "group by enhanced(rowtime, interval '2' hour), productId").ok();
+  }
   @Test public void testStreamTumble() {
     // TUMBLE
     sql("select stream tumble_end(rowtime, interval '2' hour) as rowtime\n"

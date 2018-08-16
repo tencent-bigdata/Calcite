@@ -51,11 +51,13 @@ public interface AuxiliaryConverter {
         RexNode e) {
       switch (f.getKind()) {
       case TUMBLE_START:
+      case ENHANCED_START:
       case HOP_START:
       case SESSION_START:
       case SESSION_END: // TODO: ?
         return e;
       case TUMBLE_END:
+      case ENHANCED_END:
         return rexBuilder.makeCall(
             SqlStdOperatorTable.PLUS, e,
             ((RexCall) groupCall).operands.get(1));

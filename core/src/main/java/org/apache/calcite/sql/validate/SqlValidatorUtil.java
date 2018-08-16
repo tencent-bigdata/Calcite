@@ -742,6 +742,7 @@ public class SqlValidatorUtil {
       // fall through
     case HOP:
     case TUMBLE:
+    case ENHANCED:
     case SESSION:
     case GROUPING_SETS:
     default:
@@ -889,6 +890,7 @@ public class SqlValidatorUtil {
     switch (expr.getKind()) {
     case HOP:
     case TUMBLE:
+    case ENHANCED:
     case SESSION:
       groupAnalyzer.extraExprs.add(expr);
       break;

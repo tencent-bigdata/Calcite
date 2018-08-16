@@ -1576,6 +1576,14 @@ public class SqlToRelConverterTest extends SqlToRelTestBase {
     sql(sql).ok();
   }
 
+  /*@Test public void testEnhanced() {
+    final String sql = "select STREAM\n"
+            + "  ENHANCED_START(rowtime, INTERVAL '1' MINUTE) AS s,\n"
+            + "  ENHANCED_END(rowtime, INTERVAL '1' MINUTE) AS e\n"
+            + "from Shipments\n"
+            + "GROUP BY ENHANCED(rowtime, INTERVAL '1' MINUTE)";
+    sql(sql).ok();
+  }*/
   @Test public void testNotNotIn() {
     final String sql = "select * from EMP where not (ename not in ('Fred') )";
     sql(sql).ok();

@@ -2052,6 +2052,27 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
   public static final SqlGroupedWindowFunction TUMBLE_END =
       TUMBLE.auxiliary(SqlKind.TUMBLE_END);
 
+  /** The {@code ENHANCED} group function. */
+  public static final SqlGroupedWindowFunction ENHANCED =
+      new SqlGroupedWindowFunction(SqlKind.ENHANCED.name(), SqlKind.ENHANCED,
+          null, ReturnTypes.ARG0, null,
+          OperandTypes.or(OperandTypes.DATETIME_INTERVAL,
+              OperandTypes.DATETIME_INTERVAL_TIME),
+          SqlFunctionCategory.SYSTEM) {
+        @Override public List<SqlGroupedWindowFunction> getAuxiliaryFunctions() {
+          return ImmutableList.of(ENHANCED_START, ENHANCED_END);
+        }
+      };
+
+  /** The {@code ENHANCED_START} auxiliary function of
+   * the {@code ENHANCED} group function. */
+  public static final SqlGroupedWindowFunction ENHANCED_START =
+      ENHANCED.auxiliary(SqlKind.ENHANCED_START);
+
+
+  public static final SqlGroupedWindowFunction ENHANCED_END =
+      ENHANCED.auxiliary(SqlKind.ENHANCED_END);
+
   /** The {@code HOP} group function. */
   public static final SqlGroupedWindowFunction HOP =
       new SqlGroupedWindowFunction(SqlKind.HOP.name(), SqlKind.HOP, null,
@@ -2214,6 +2235,9 @@ public class SqlStdOperatorTable extends ReflectiveSqlOperatorTable {
     case TUMBLE_START:
     case TUMBLE_END:
       return TUMBLE;
+    case ENHANCED_START:
+    case ENHANCED_END:
+      return ENHANCED;
     case HOP_START:
     case HOP_END:
       return HOP;

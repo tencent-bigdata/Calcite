@@ -22,7 +22,7 @@ package org.apache.calcite.runtime;
  */
 public class Like {
   private static final String JAVA_REGEX_SPECIALS = "[]()|^-+*?{}$\\.";
-  private static final String SQL_SIMILAR_SPECIALS = "[]()|^-+*_%?{}";
+  private static final String SQL_SIMILAR_SPECIALS = "[]()|^-+*_%?{}.";
   private static final String [] REG_CHAR_CLASSES = {
       "[:ALPHA:]", "\\p{Alpha}",
       "[:alpha:]", "\\p{Alpha}",

@@ -38,6 +38,7 @@ limitations under the License.
     <dependency>
       <groupId>org.apache.calcite</groupId>
       <artifactId>calcite-core</artifactId>
+      <version>1.17.0-tdbank-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.calcite</groupId>
